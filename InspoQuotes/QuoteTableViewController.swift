@@ -40,14 +40,32 @@ class QuoteTableViewController: UITableViewController {
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return quotesToShow.count
+        return quotesToShow.count + 1
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "QuoteCell", for: indexPath)
-        cell.textLabel?.text = quotesToShow[indexPath.row]
-        cell.textLabel?.numberOfLines = 0
+        
+        if indexPath.row < quotesToShow.count {
+            cell.textLabel?.text = quotesToShow[indexPath.row]
+            cell.textLabel?.numberOfLines = 0
+        } else {
+            cell.textLabel?.text = "Get More Quotes..."
+            cell.textLabel?.textAlignment = .center
+            cell.textLabel?.textColor = UIColor.red
+        }
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.row == quotesToShow.count {
+            buyPremiumQuotes()
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func buyPremiumQuotes() {
+        print("Set Logic to buy quotes.")
     }
     
     @IBAction func restorePressed(_ sender: UIBarButtonItem) {

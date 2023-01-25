@@ -9,7 +9,7 @@
 import UIKit
 import StoreKit
 
-class QuoteTableViewController: UITableViewController, SKPaymentQueueDelegate {
+class QuoteTableViewController: UITableViewController {
     
     let productID = "com.londonappbrewery.InspoQuotes.PremiumQuotes"
     
@@ -33,8 +33,6 @@ class QuoteTableViewController: UITableViewController, SKPaymentQueueDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        SKPaymentQueue.default().delegate = self
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -80,17 +78,32 @@ class QuoteTableViewController: UITableViewController, SKPaymentQueueDelegate {
         }
     }
     
+    @IBAction func restorePressed(_ sender: UIBarButtonItem) {
+        
+    }
+}
+
+class StoreObserver: NSObject, SKPaymentTransactionObserver {
+    
+    static var shared = StoreObserver()
+    
+    override init() {
+        super.init()
+    }
+    
     func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
         for transaction in transactions {
             if transaction.transactionState == .purchased {
-                print("Payment Successfull")
+                // Payment Successfull
+                SKPaymentQueue.default().finishTransaction(transaction)
             } else if transaction.transactionState == .failed {
-                print("Payment Failed")
+                // Payment Failed
+                if let error = transaction.error {
+                    let errorDescription = error.localizedDescription
+                    print("Transaction failed due to error: \(errorDescription)")
+                }
+                SKPaymentQueue.default().finishTransaction(transaction)
             }
         }
-    }
-    
-    @IBAction func restorePressed(_ sender: UIBarButtonItem) {
-        
     }
 }

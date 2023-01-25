@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import StoreKit
 
-class QuoteTableViewController: UITableViewController {
+class QuoteTableViewController: UITableViewController, SKPaymentQueueDelegate {
+    
+    let productID = "com.londonappbrewery.InspoQuotes.PremiumQuotes"
     
     var quotesToShow = [
         "Our greatest glory is not in never falling, but in rising every time we fall. — Confucius",
@@ -30,6 +33,8 @@ class QuoteTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        SKPaymentQueue.default().delegate = self
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -65,7 +70,24 @@ class QuoteTableViewController: UITableViewController {
     }
     
     func buyPremiumQuotes() {
-        print("Set Logic to buy quotes.")
+        if SKPaymentQueue.canMakePayments() {
+            print("Can make payments.")
+            let paymentRequest = SKMutablePayment()
+            paymentRequest.productIdentifier = productID
+            SKPaymentQueue.default().add(paymentRequest)
+        } else {
+            print("User can't make payments.")
+        }
+    }
+    
+    func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
+        for transaction in transactions {
+            if transaction.transactionState == .purchased {
+                print("Payment Successfull")
+            } else if transaction.transactionState == .failed {
+                print("Payment Failed")
+            }
+        }
     }
     
     @IBAction func restorePressed(_ sender: UIBarButtonItem) {

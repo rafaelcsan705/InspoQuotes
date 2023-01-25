@@ -62,17 +62,9 @@
 				AD18A84121285CAF00F6BF05 /* Main.storyboard */,
 				AD18A84421285CB000F6BF05 /* Assets.xcassets */,
 				AD18A84621285CB000F6BF05 /* LaunchScreen.storyboard */,
-				AD18A8552128605C00F6BF05 /* Supporting Files */,
 				AD18A84921285CB000F6BF05 /* Info.plist */,
 			);
 			path = InspoQuotes;
-			sourceTree = "<group>";
-		};
-		AD18A8552128605C00F6BF05 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

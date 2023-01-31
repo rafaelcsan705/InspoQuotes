@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		88A929C629895ADE00752566 /* PaymentQueueProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A929C529895ADE00752566 /* PaymentQueueProtocol.swift */; };
 		AD18A83E21285CAF00F6BF05 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD18A83D21285CAF00F6BF05 /* AppDelegate.swift */; };
 		AD18A84321285CAF00F6BF05 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD18A84121285CAF00F6BF05 /* Main.storyboard */; };
 		AD18A84521285CB000F6BF05 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD18A84421285CB000F6BF05 /* Assets.xcassets */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		88A929C529895ADE00752566 /* PaymentQueueProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentQueueProtocol.swift; sourceTree = "<group>"; };
 		AD18A83A21285CAF00F6BF05 /* InspoQuotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InspoQuotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD18A83D21285CAF00F6BF05 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AD18A84221285CAF00F6BF05 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 			children = (
 				AD18A83D21285CAF00F6BF05 /* AppDelegate.swift */,
 				AD18A84F21285D4800F6BF05 /* QuoteTableViewController.swift */,
+				88A929C529895ADE00752566 /* PaymentQueueProtocol.swift */,
 				AD18A84121285CAF00F6BF05 /* Main.storyboard */,
 				AD18A84421285CB000F6BF05 /* Assets.xcassets */,
 				AD18A84621285CB000F6BF05 /* LaunchScreen.storyboard */,
@@ -141,6 +144,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD18A85021285D4800F6BF05 /* QuoteTableViewController.swift in Sources */,
+				88A929C629895ADE00752566 /* PaymentQueueProtocol.swift in Sources */,
 				AD18A83E21285CAF00F6BF05 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

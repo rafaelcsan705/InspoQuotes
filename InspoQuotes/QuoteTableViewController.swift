@@ -69,7 +69,6 @@ class QuoteTableViewController: UITableViewController {
     
     func buyPremiumQuotes() {
         if SKPaymentQueue.canMakePayments() {
-            print("Can make payments.")
             let paymentRequest = SKMutablePayment()
             paymentRequest.productIdentifier = productID
             SKPaymentQueue.default().add(paymentRequest)
@@ -83,8 +82,40 @@ class QuoteTableViewController: UITableViewController {
     }
 }
 
+// MARK: - Function
+extension QuoteTableViewController {
+    func getViewController() -> UIViewController? {
+        var topVC = UIApplication.shared.keyWindow?.rootViewController
+        while let presentedViewController = topVC?.presentedViewController {
+            topVC = presentedViewController
+        }
+        return topVC
+    }
+    
+    func showAlert(title: String, description: String, style: UIAlertController.Style = .alert) {
+        guard let vc = getViewController() else { return }
+        let alert = UIAlertController(title: title, message: description, preferredStyle: style)
+        alert.addAction(.init(title: "Confirm", style: .default) { action in
+            vc.dismiss(animated: true)
+        })
+        vc.present(alert, animated: true)
+    }
+}
+
+
+extension QuoteTableViewController: PaymentQueueProtocol {
+    func resultFromPaymentQueueWithSuccess() {
+        showAlert(title: "Subscrição com sucesso.", description: "Agradecemos a subscrição e esperemos que desfrute.")
+    }
+    
+    func resultFromPaymentQueueWithError(error: String) {
+        showAlert(title: "Subscrição sem sucesso.", description: "Lamentamos mas não foi possível concluir a subscrição. \n \(error)")
+    }
+}
+
 class StoreObserver: NSObject, SKPaymentTransactionObserver {
     
+    let quotesTableView = QuoteTableViewController()
     static var shared = StoreObserver()
     
     override init() {
@@ -92,15 +123,18 @@ class StoreObserver: NSObject, SKPaymentTransactionObserver {
     }
     
     func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
+        
         for transaction in transactions {
             if transaction.transactionState == .purchased {
                 // Payment Successfull
+                quotesTableView.resultFromPaymentQueueWithSuccess()
                 SKPaymentQueue.default().finishTransaction(transaction)
             } else if transaction.transactionState == .failed {
                 // Payment Failed
                 if let error = transaction.error {
                     let errorDescription = error.localizedDescription
-                    print("Transaction failed due to error: \(errorDescription)")
+                    quotesTableView.resultFromPaymentQueueWithError(error: errorDescription)
+//                    print("Transaction failed due to error: \(errorDescription)")
                 }
                 SKPaymentQueue.default().finishTransaction(transaction)
             }

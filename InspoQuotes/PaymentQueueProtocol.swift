@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol PaymentQueueProtocol {
+public protocol PaymentQueueProtocol: AnyObject {
     func resultFromPaymentQueueWithSuccess()
     func resultFromPaymentQueueWithError(error: String)
 }

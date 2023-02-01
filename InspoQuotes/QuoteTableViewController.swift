@@ -11,6 +11,8 @@ import StoreKit
 
 class QuoteTableViewController: UITableViewController {
     
+    var storeObserver = StoreObserver.shared
+    @IBOutlet weak var restoreBtn: UIBarButtonItem!
     let productID = "com.londonappbrewery.InspoQuotes.PremiumQuotes"
     
     var quotesToShow = [
@@ -34,19 +36,17 @@ class QuoteTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        storeObserver.delegate = self
         checkUserPremiumStatus()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let quotesArray = quotesToShow.count
-        return isPurchased() ? quotesArray : quotesArray + 1
+        if isPurchased() {
+            return quotesToShow.count
+        } else {
+            return quotesToShow.count + 1
+        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -55,10 +55,12 @@ class QuoteTableViewController: UITableViewController {
         if indexPath.row < quotesToShow.count {
             cell.textLabel?.text = quotesToShow[indexPath.row]
             cell.textLabel?.numberOfLines = 0
+            cell.textLabel?.textAlignment = .left
+            cell.textLabel?.textColor = .black
         } else {
             cell.textLabel?.text = "Get More Quotes..."
             cell.textLabel?.textAlignment = .center
-            cell.textLabel?.textColor = UIColor.red
+            cell.textLabel?.textColor = .red
         }
         return cell
     }
@@ -71,13 +73,12 @@ class QuoteTableViewController: UITableViewController {
     }
     
     @IBAction func restorePressed(_ sender: UIBarButtonItem) {
-        
+        SKPaymentQueue.default().restoreCompletedTransactions()
     }
 }
 
 // MARK: - Function
 extension QuoteTableViewController {
-    
     func checkUserPremiumStatus() {
         if isPurchased() {
             showPremiumQuotes()
@@ -95,7 +96,12 @@ extension QuoteTableViewController {
     }
     
     func showPremiumQuotes() {
-        quotesToShow.append(contentsOf: premiumQuotes)
+        if let premiumQuote = premiumQuotes.randomElement() {
+            if !quotesToShow.contains(premiumQuote) {
+                quotesToShow.append(contentsOf: premiumQuotes)
+            }
+        }
+        
         tableView.reloadData()
     }
     
@@ -110,60 +116,54 @@ extension QuoteTableViewController {
         return purchaseStatus
     }
     
-    func getViewController() -> UIViewController? {
-        var topVC = UIApplication.shared.keyWindow?.rootViewController
-        while let presentedViewController = topVC?.presentedViewController {
-            topVC = presentedViewController
-        }
-        return topVC
-    }
-    
     func showAlert(title: String, description: String, style: UIAlertController.Style = .alert) {
-        guard let vc = getViewController() else { return }
         let alert = UIAlertController(title: title, message: description, preferredStyle: style)
         alert.addAction(.init(title: "Confirm", style: .default) { action in
-            vc.dismiss(animated: true)
+            self.dismiss(animated: true)
         })
-        vc.present(alert, animated: true)
+        present(alert, animated: true)
+    }
+    
+    func hideNavBarItem() {
+        navigationItem.setRightBarButton(nil, animated: true)
     }
 }
 
 
 extension QuoteTableViewController: PaymentQueueProtocol {
     func resultFromPaymentQueueWithSuccess() {
+        UserDefaults.standard.set(true, forKey: productID)
         showAlert(title: "Subscrição com sucesso.", description: "Agradecemos a subscrição e esperemos que desfrute.")
-        UserDefaults.setValue(true, forKey: productID)
+        hideNavBarItem()
         showPremiumQuotes()
     }
     
     func resultFromPaymentQueueWithError(error: String) {
         showAlert(title: "Subscrição sem sucesso.", description: "Lamentamos mas não foi possível concluir a subscrição. \n \(error)")
+        hideNavBarItem()
     }
 }
 
 class StoreObserver: NSObject, SKPaymentTransactionObserver {
     
-    let quotesTableView = QuoteTableViewController()
+    weak var delegate: PaymentQueueProtocol?
     static var shared = StoreObserver()
     
-    override init() {
-        super.init()
-    }
-    
     func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
-        
         for transaction in transactions {
             if transaction.transactionState == .purchased {
                 // Payment Successfull
-                quotesTableView.resultFromPaymentQueueWithSuccess()
+                delegate?.resultFromPaymentQueueWithSuccess()
                 SKPaymentQueue.default().finishTransaction(transaction)
             } else if transaction.transactionState == .failed {
                 // Payment Failed
                 if let error = transaction.error {
-                    let errorDescription = error.localizedDescription
-                    quotesTableView.resultFromPaymentQueueWithError(error: errorDescription)
-//                    print("Transaction failed due to error: \(errorDescription)")
+                    delegate?.resultFromPaymentQueueWithError(error: error.localizedDescription)
                 }
+                SKPaymentQueue.default().finishTransaction(transaction)
+            } else if transaction.transactionState == .restored {
+                // Transaction restored
+                delegate?.resultFromPaymentQueueWithSuccess()
                 SKPaymentQueue.default().finishTransaction(transaction)
             }
         }
